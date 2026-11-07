@@ -1,6 +1,23 @@
 set(LIBCXX_INCLUDE ${DEPS_DIR}/libcxx)
 set(LIBCXXABI_INCLUDE ${DEPS_DIR}/libcxxabi)
 
+# The Termux build uses the NDK compiler but deliberately skips Chromium's
+# bundled libc++. Add the matching NDK libc++ headers explicitly because the
+# compiler is selected by FindClang.cmake after the Android toolchain setup.
+if (TERMUX_RUNTIME OR "$ENV{TERMUX_RUNTIME}" STREQUAL "ON")
+    if (NOT NDK_SRC)
+        get_filename_component(NDK_SRC "${CMAKE_CURRENT_LIST_DIR}/../deps/ndk/src" ABSOLUTE)
+    endif ()
+    set(TERMUX_LIBCXX_INCLUDE "${NDK_SRC}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/c++/v1")
+    if (NOT EXISTS "${TERMUX_LIBCXX_INCLUDE}/cassert")
+        message(FATAL_ERROR "NDK libc++ headers not found: ${TERMUX_LIBCXX_INCLUDE}")
+    endif ()
+    add_compile_options(
+        "$<$<COMPILE_LANGUAGE:CXX>:-isystem${TERMUX_LIBCXX_INCLUDE}>"
+        "$<$<COMPILE_LANGUAGE:OBJCXX>:-isystem${TERMUX_LIBCXX_INCLUDE}>"
+    )
+endif ()
+
 if((LINUX OR MACOS OR WINDOWS OR ANDROID) AND USE_LIBCXX)
     GitClone(
         URL https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libcxx.git
