@@ -44,7 +44,13 @@ namespace wrtc::interfaces::peer_connection {
         dependencies.signaling_thread = *signaling_thread_;
         dependencies.env = env;
         dependencies.event_log_factory = std::make_unique<webrtc::RtcEventLogFactory>();
+#ifdef NTG_TERMUX_RUNTIME
+        // Termux runs inside a regular Python process, not an Android app JVM.
+        // Do not attach to JNI or instantiate Android Java video factories.
+        jni_env_ = nullptr;
+#else
         jni_env_ = utils::get_jni_env();
+#endif
         dependencies.adm = network_thread_->BlockingCall([&] {
             if (!audio_device_module_)
                 audio_device_module_ = webrtc::make_ref_counted<media::AudioDeviceModule>();
@@ -52,16 +58,22 @@ namespace wrtc::interfaces::peer_connection {
         });
         dependencies.audio_encoder_factory = webrtc::CreateBuiltinAudioEncoderFactory();
         dependencies.audio_decoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
-#ifdef IS_ANDROID
+#if defined(IS_ANDROID) && !defined(NTG_TERMUX_RUNTIME)
         dependencies.video_encoder_factory = android::create_video_encoder_factory(static_cast<JNIEnv*>(jni_env_));
         dependencies.video_decoder_factory = android::create_video_decoder_factory(static_cast<JNIEnv*>(jni_env_));
+#elif defined(NTG_TERMUX_RUNTIME)
+        // Audio-only Termux sessions do not require camera/screen video codecs.
+        dependencies.video_encoder_factory = nullptr;
+        dependencies.video_decoder_factory = nullptr;
 #else
         auto config = video_factory::VideoFactoryConfig();
         dependencies.video_encoder_factory = config.create_video_encoder_factory();
         dependencies.video_decoder_factory = config.create_video_decoder_factory();
 #endif
         dependencies.audio_mixer = nullptr;
-        supported_video_formats_ = dependencies.video_encoder_factory->GetSupportedFormats();
+        if (dependencies.video_encoder_factory) {
+            supported_video_formats_ = dependencies.video_encoder_factory->GetSupportedFormats();
+        }
         EnableMedia(dependencies);
         if (!factory_) {
             factory_ = create_modular_peer_connection_factory_with_context(env, std::move(dependencies), connection_context_);
