@@ -1,5 +1,17 @@
 GetProperty("version.clang" CLANG_VERSION)
-if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
+
+# Termux runs Python directly on Android and does not need Chromium's host
+# Clang bundle. Use the NDK's Android-target compiler wrappers instead.
+if (TERMUX_RUNTIME AND ANDROID_ABI STREQUAL "arm64-v8a")
+    set(NDK_LLVM_BIN "${NDK_SRC}/toolchains/llvm/prebuilt/linux-x86_64/bin")
+    set(CMAKE_C_COMPILER "${NDK_LLVM_BIN}/aarch64-linux-android${ANDROID_NATIVE_API_LEVEL}-clang")
+    set(CMAKE_CXX_COMPILER "${NDK_LLVM_BIN}/aarch64-linux-android${ANDROID_NATIVE_API_LEVEL}-clang++")
+    set(CMAKE_AR "${NDK_LLVM_BIN}/llvm-ar")
+    set(CMAKE_STRIP "${NDK_LLVM_BIN}/llvm-strip")
+    if (NOT EXISTS "${CMAKE_C_COMPILER}" OR NOT EXISTS "${CMAKE_CXX_COMPILER}")
+        message(FATAL_ERROR "NDK arm64 compiler wrappers not found in ${NDK_LLVM_BIN}")
+    endif ()
+elseif (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
     set(CLANG_DIR ${DEPS_DIR}/clang)
     set(CLANG_LIB_DIR ${CLANG_DIR}/lib)
     set(CLANG_BIN_DIR ${CLANG_DIR}/bin)
