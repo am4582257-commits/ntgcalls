@@ -17,6 +17,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TERMUX_RUNTIME: "ON"
     timeout-minutes: 180
     steps:
       - name: Checkout source and submodules
