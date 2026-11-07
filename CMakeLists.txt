@@ -6,6 +6,11 @@ option(STATIC_BUILD "Build static libraries" ON)
 option(USE_LIBCXX   "Use libc++" ON)
 option(SCHEMA_ONLY  "Only generate the language-agnostic NTL schema, skip bindings and build" OFF)
 
+option(TERMUX_RUNTIME "Disable Android Java video integration for Termux Python runtime" OFF)
+if (TERMUX_RUNTIME)
+    add_compile_definitions(NTG_TERMUX_RUNTIME)
+endif ()
+
 add_custom_target(clean_objects
     COMMAND ${CMAKE_COMMAND} -P "${CMAKE_SOURCE_DIR}/cmake/CleanObjects.cmake"
     COMMENT "Removing all object (.o) files"
