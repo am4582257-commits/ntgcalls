@@ -5,6 +5,7 @@ on:
     branches:
       - termux-runtime-fix
     paths:
+      - '.github/workflows/termux-build.yml'
       - 'CMakeLists.txt'
       - 'setup.py'
       - 'targets/termux/**'
