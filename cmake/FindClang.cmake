@@ -2,7 +2,12 @@ GetProperty("version.clang" CLANG_VERSION)
 
 # Termux runs Python directly on Android and does not need Chromium's host
 # Clang bundle. Use the NDK's Android-target compiler wrappers instead.
-if (TERMUX_RUNTIME AND ANDROID_ABI STREQUAL "arm64-v8a")
+if ((TERMUX_RUNTIME OR "$ENV{TERMUX_RUNTIME}" STREQUAL "ON") AND ANDROID_ABI STREQUAL "arm64-v8a")
+    # CMake try_compile does not reliably forward custom cache variables; use the
+    # inherited environment flag and resolve the NDK from this source checkout.
+    if (NOT NDK_SRC)
+        get_filename_component(NDK_SRC "${CMAKE_CURRENT_LIST_DIR}/../deps/ndk/src" ABSOLUTE)
+    endif ()
     set(NDK_LLVM_BIN "${NDK_SRC}/toolchains/llvm/prebuilt/linux-x86_64/bin")
     set(CMAKE_C_COMPILER "${NDK_LLVM_BIN}/aarch64-linux-android${ANDROID_NATIVE_API_LEVEL}-clang")
     set(CMAKE_CXX_COMPILER "${NDK_LLVM_BIN}/aarch64-linux-android${ANDROID_NATIVE_API_LEVEL}-clang++")
