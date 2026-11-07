@@ -52,7 +52,7 @@ namespace wrtc::interfaces::peer_connection {
         });
         dependencies.audio_encoder_factory = webrtc::CreateBuiltinAudioEncoderFactory();
         dependencies.audio_decoder_factory = webrtc::CreateBuiltinAudioDecoderFactory();
-#ifdef IS_ANDROID
+#if defined(IS_ANDROID) && !defined(IS_TERMUX)
         dependencies.video_encoder_factory = android::create_video_encoder_factory(static_cast<JNIEnv*>(jni_env_));
         dependencies.video_decoder_factory = android::create_video_decoder_factory(static_cast<JNIEnv*>(jni_env_));
 #else
@@ -135,7 +135,7 @@ namespace wrtc::interfaces::peer_connection {
     PeerConnectionFactory* PeerConnectionFactory::get_or_create_default() {
         const std::lock_guard lock(mutex_);
         if (initialized_ == false) {
-#ifndef IS_ANDROID
+#if !defined(IS_ANDROID) || defined(IS_TERMUX)
             webrtc::InitializeSSL();
 #endif
             initialized_ = true;

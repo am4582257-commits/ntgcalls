@@ -2,7 +2,7 @@
 // Created by Lauren on 18/08/23.
 //
 
-#ifndef IS_ANDROID
+#if !defined(IS_ANDROID) || defined(IS_TERMUX)
 
 #include <api/environment/environment_factory.h>
 #include <modules/video_coding/codecs/vp8/include/vp8.h>

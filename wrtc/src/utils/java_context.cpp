@@ -4,14 +4,14 @@
 
 #include <wrtc/utils/java_context.hpp>
 
-#ifdef IS_ANDROID
+#if defined(IS_ANDROID) && !defined(IS_TERMUX)
 #include <sdk/android/native_api/jni/jvm.h>
 #include <sdk/android/src/jni/jvm.h>
 #endif
 
 namespace wrtc::utils {
     void* get_jni_env() {
-#ifdef IS_ANDROID
+#if defined(IS_ANDROID) && !defined(IS_TERMUX)
         return webrtc::AttachCurrentThreadIfNeeded();
 #else
         return nullptr;

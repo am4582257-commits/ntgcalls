@@ -42,7 +42,7 @@ GetProperty("version.ffmpeg" FFMPEG_VERSION)
 message(STATUS "ffmpeg v${FFMPEG_VERSION}")
 
 set(FILE_NAME ffmpeg.${PLATFORM})
-if (NOT ANDROID)
+if (PLATFORM STREQUAL "linux" OR PLATFORM STREQUAL "macos" OR PLATFORM STREQUAL "windows")
     set(FILE_NAME ${FILE_NAME}-${ARCH})
 endif ()
 set(FILE_NAME ${FILE_NAME}${ARCHIVE_FORMAT})

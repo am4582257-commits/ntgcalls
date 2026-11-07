@@ -2,10 +2,12 @@
 // Created by Lauren on 18/08/23.
 //
 
-#ifndef IS_ANDROID
+#if !defined(IS_ANDROID) || defined(IS_TERMUX)
 #include <wrtc/video_factory/video_factory_config.hpp>
 #include <wrtc/video_factory/software/google/google.hpp>
+#ifndef IS_TERMUX
 #include <wrtc/video_factory/software/openh264/openh264.hpp>
+#endif
 #include <wrtc/video_factory/software/vlc/vlc.hpp>
 
 namespace wrtc::video_factory {
@@ -19,11 +21,13 @@ namespace wrtc::video_factory {
         vlc::add_encoders(encoders);
         vlc::add_decoders(decoders);
 
-        // OpenH264 (Software, H264)
-        openh264::add_encoders(encoders);
-        openh264::add_decoders(decoders);
+        #ifndef IS_TERMUX
+    // OpenH264 (Software, H264)
+    openh264::add_encoders(encoders);
+    openh264::add_decoders(decoders);
+#endif
 
-        // NVCODEC (Hardware, VP8, VP9, H264)
+    // NVCODEC (Hardware, VP8, VP9, H264)
         // TODO: @Lauren Add NVCODEC encoder-decoder when available
     }
 

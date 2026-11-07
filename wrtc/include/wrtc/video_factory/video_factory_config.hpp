@@ -4,7 +4,7 @@
 
 #pragma once
 
-#ifndef IS_ANDROID
+#if !defined(IS_ANDROID) || defined(IS_TERMUX)
 #include <vector>
 #include <wrtc/video_factory/video_decoder_factory.hpp>
 #include <wrtc/video_factory/video_encoder_factory.hpp>

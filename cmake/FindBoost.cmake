@@ -43,7 +43,7 @@ GetProperty("version.boost" BOOST_VERSION)
 message(STATUS "boost v${BOOST_VERSION}")
 
 set(FILE_NAME boost.${PLATFORM})
-if (NOT ANDROID)
+if (PLATFORM STREQUAL "linux" OR PLATFORM STREQUAL "macos" OR PLATFORM STREQUAL "windows")
     set(FILE_NAME ${FILE_NAME}-${ARCH})
 endif ()
 set(FILE_NAME ${FILE_NAME}${ARCHIVE_FORMAT})
@@ -63,7 +63,7 @@ if (NOT TARGET Boost::json)
     )
 endif ()
 
-if (NOT ANDROID)
+if (PLATFORM STREQUAL "linux" OR PLATFORM STREQUAL "macos" OR PLATFORM STREQUAL "windows")
     if (NOT TARGET Boost::atomic)
         add_library(Boost::atomic STATIC IMPORTED GLOBAL)
         set_target_properties(Boost::atomic PROPERTIES

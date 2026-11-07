@@ -21,3 +21,5 @@ target_link_libraries(wrtc PUBLIC ffmpeg::avcodec ffmpeg::avformat ffmpeg::avuti
 if (NOT ANDROID)
     target_link_libraries(wrtc PRIVATE cisco::OpenH264)
 endif ()
+
+target_include_directories(wrtc PRIVATE "${CMAKE_SOURCE_DIR}/deps/openh264/src/include")
