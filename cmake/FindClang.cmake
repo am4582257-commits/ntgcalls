@@ -14,11 +14,16 @@ if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
         set(CLANG_OS_PREFIX Linux_x64)
     endif ()
 
+    # Always refresh Chromium's updater; stale or empty cached scripts can
+    # silently leave the compiler directory without clang/clang++.
+    file(REMOVE ${CLANG_UPDATE})
+    GitFile(
+        URL https://chromium.googlesource.com/chromium/src/tools/+/refs/heads/main/clang/scripts/update.py
+        DIRECTORY ${CLANG_UPDATE}
+    )
     if (NOT EXISTS ${CLANG_UPDATE})
-        GitFile(
-            URL https://chromium.googlesource.com/chromium/src/tools/+/refs/heads/main/clang/scripts/update.py
-            DIRECTORY ${CLANG_UPDATE}
-        )
+        message(FATAL_ERROR "Chromium Clang updater was not downloaded: ${CLANG_UPDATE}")
+    endif ()
         set(URL_BASE "https://commondatastorage.googleapis.com/chromium-browser-clang/?delimiter=/&prefix=${CLANG_OS_PREFIX}/")
         set(URL_TMP ${URL_BASE})
         set(BEST_GENERATION 0)
@@ -90,10 +95,18 @@ if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
         file(WRITE ${CLANG_UPDATE} ${FILE_CONTENT})
     endif ()
 
-    if (NOT EXISTS ${CLANG_BIN_DIR}/clang)
+    if (NOT EXISTS ${CLANG_BIN_DIR}/clang OR NOT EXISTS ${CLANG_BIN_DIR}/clang++)
+        message(STATUS "Installing Chromium Clang ${CLANG_VERSION} into ${CLANG_DIR}")
         execute_process(
             COMMAND ${Python_EXECUTABLE} ${CLANG_UPDATE} --output-dir ${CLANG_DIR}
+            RESULT_VARIABLE CLANG_UPDATE_RESULT
         )
+        if (NOT CLANG_UPDATE_RESULT EQUAL 0)
+            message(FATAL_ERROR "Chromium Clang updater failed with exit code: ${CLANG_UPDATE_RESULT}")
+        endif ()
+    endif ()
+    if (NOT EXISTS ${CLANG_BIN_DIR}/clang OR NOT EXISTS ${CLANG_BIN_DIR}/clang++)
+        message(FATAL_ERROR "Chromium Clang installation incomplete; expected ${CLANG_BIN_DIR}/clang and clang++")
     endif ()
     if (NOT JUST_INSTALL_CLANG AND WINDOWS_x86_64)
         set(CMAKE_C_COMPILER "${CLANG_BIN_DIR}/clang-cl.exe")
