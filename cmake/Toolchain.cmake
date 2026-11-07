@@ -3,6 +3,9 @@ if(NTGCALLS_TOOLCHAIN_INCLUDED)
 endif(NTGCALLS_TOOLCHAIN_INCLUDED)
 set(NTGCALLS_TOOLCHAIN_INCLUDED ON)
 
+# Preserve the Termux cross-toolchain selection in CMake try_compile projects.
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES TERMUX_RUNTIME ANDROID_ABI ANDROID_NATIVE_API_LEVEL NDK_SRC)
+
 get_filename_component(DEPS_DIR "${CMAKE_CURRENT_LIST_DIR}/../deps" REALPATH)
 get_filename_component(props_loc "${CMAKE_CURRENT_LIST_DIR}/../version.properties" REALPATH)
 
