@@ -93,7 +93,6 @@ if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
         string(REPLACE ${OLD_CLANG_RELEASE} "RELEASE_VERSION = '${CLANG_VERSION}'" FILE_CONTENT ${FILE_CONTENT})
 
         file(WRITE ${CLANG_UPDATE} ${FILE_CONTENT})
-    endif ()
 
     if (NOT EXISTS ${CLANG_BIN_DIR}/clang OR NOT EXISTS ${CLANG_BIN_DIR}/clang++)
         message(STATUS "Installing Chromium Clang ${CLANG_VERSION} into ${CLANG_DIR}")
