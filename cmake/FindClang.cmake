@@ -1,5 +1,5 @@
 GetProperty("version.clang" CLANG_VERSION)
-if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
+if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64)
     set(CLANG_DIR ${DEPS_DIR}/clang)
     set(CLANG_LIB_DIR ${CLANG_DIR}/lib)
     set(CLANG_BIN_DIR ${CLANG_DIR}/bin)
@@ -105,6 +105,9 @@ if (LINUX_x86_64 OR MACOS_ARM64 OR WINDOWS_x86_64 OR ANDROID_ABI)
         set(CMAKE_C_COMPILER "${CLANG_BIN_DIR}/clang")
         set(CMAKE_CXX_COMPILER "${CLANG_BIN_DIR}/clang++")
     endif ()
+elseif (ANDROID_ABI)
+    # Android's NDK toolchain already configures the matching Clang compiler.
+    # Do not override it with the separately downloaded Chromium Clang bundle.
 elseif (LINUX_ARM64)
     find_program(CMAKE_C_COMPILER NAMES clang-${CLANG_VERSION} clang)
     find_program(CMAKE_CXX_COMPILER NAMES clang++-${CLANG_VERSION} clang++)
